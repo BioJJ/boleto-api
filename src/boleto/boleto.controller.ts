@@ -8,15 +8,17 @@ import {
   Delete,
 } from '@nestjs/common';
 import { BoletoService } from './boleto.service';
-import { CreateBoletoDto } from './dto/create-boleto.dto';
+import { CreateRetornoDto } from './dto/create-retorno.dto';
 import { UpdateBoletoDto } from './dto/update-boleto.dto';
+import { Retorno } from './entities/retorno.entity';
+import { Boleto } from './interfaces/boleto.interface';
 
 @Controller('boleto')
 export class BoletoController {
   constructor(private readonly boletoService: BoletoService) {}
 
   @Post()
-  create(@Body() createBoletoDto: CreateBoletoDto) {
+  create(@Body() createBoletoDto: Boleto) {
     return this.boletoService.create(createBoletoDto);
   }
 
@@ -25,9 +27,9 @@ export class BoletoController {
     return this.boletoService.findAll();
   }
 
-  @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.boletoService.findOne(+id);
+  @Get(':barCode')
+  findBarCode(@Param('barCode') id: string): Retorno {
+    return this.boletoService.findBarCode(id);
   }
 
   @Patch(':id')

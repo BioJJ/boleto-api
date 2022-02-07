@@ -30,61 +30,76 @@ export class BoletoService {
   findBarCode(barCode: string) {
     const tipoCodigo = this.identificarTipoCodigo(barCode);
 
-    if (
-      barCode.length != 44 &&
-      barCode.length != 46 &&
-      barCode.length != 47 &&
-      barCode.length != 48
-    ) {
+    const codigo = barCode.replace(/[^a-zA-Z]/g, '');
+
+    if (codigo.length > 0) {
       const status = '400';
       const code = barCode;
       const mensagem =
-        'O código inserido possui ' +
-        barCode.length +
-        ' dígitos. Por favor insira uma numeração válida. Códigos de barras SEMPRE devem ter 44 caracteres numéricos. Linhas digitáveis podem possuir 46 (boletos de cartão de crédito), 47 (boletos bancários/cobrança) ou 48 (contas convênio/arrecadação) caracteres numéricos. Qualquer caractere não numérico será desconsiderado.';
+        'O código inserido possui caractere alfanumérico: [' +
+        codigo +
+        '] Por favor insira uma numeração válida. (Apenas Números)';
       return `Status: ${status}
               BarCode: ${code}
               Mensagem: ${mensagem}
       `;
     } else {
-      const status = '200';
-      const code = barCode;
-      const mensagem = 'Boleto válido';
-      let tipoBoleto;
-      let expirationDate;
-      let amount;
+      if (
+        barCode.length != 44 &&
+        barCode.length != 46 &&
+        barCode.length != 47 &&
+        barCode.length != 48
+      ) {
+        const status = '400';
+        const code = barCode;
+        const mensagem =
+          'O código inserido possui ' +
+          barCode.length +
+          ' dígitos. Por favor insira uma numeração válida. Códigos de barras SEMPRE devem ter 44 caracteres numéricos. Linhas digitáveis podem possuir 46 (boletos de cartão de crédito), 47 (boletos bancários/cobrança) ou 48 (contas convênio/arrecadação) caracteres numéricos. Qualquer caractere não numérico será desconsiderado.';
+        return `Status: ${status}
+              BarCode: ${code}
+              Mensagem: ${mensagem}
+      `;
+      } else {
+        const status = '200';
+        const code = barCode;
+        const mensagem = 'Boleto válido';
+        let tipoBoleto;
+        let expirationDate;
+        let amount;
 
-      switch (tipoCodigo) {
-        case 'LINHA_DIGITAVEL':
-          // const tipoCodigoInput = 'LINHA_DIGITAVEL';
-          tipoBoleto = this.identificarTipoBoleto(barCode);
-          expirationDate = this.identificarData(barCode, 'LINHA_DIGITAVEL');
-          amount = this.identificarValor(barCode, 'LINHA_DIGITAVEL');
+        switch (tipoCodigo) {
+          case 'LINHA_DIGITAVEL':
+            // const tipoCodigoInput = 'LINHA_DIGITAVEL';
+            tipoBoleto = this.identificarTipoBoleto(barCode);
+            expirationDate = this.identificarData(barCode, 'LINHA_DIGITAVEL');
+            amount = this.identificarValor(barCode, 'LINHA_DIGITAVEL');
 
-          return `Status: ${status}
+            return `Status: ${status}
                   BarCode: ${code}
                   Mensagem: ${mensagem}
                   Tipo: ${tipoBoleto}
                   expirationDate: ${expirationDate}
                   amount ${amount}
                 `;
-          break;
-        case 'CODIGO_DE_BARRAS':
-          // const tipoCodigoInput = 'CODIGO_DE_BARRAS';
-          tipoBoleto = this.identificarTipoBoleto(barCode);
-          expirationDate = this.identificarData(barCode, 'CODIGO_DE_BARRAS');
-          amount = this.identificarValor(barCode, 'CODIGO_DE_BARRAS');
+            break;
+          case 'CODIGO_DE_BARRAS':
+            // const tipoCodigoInput = 'CODIGO_DE_BARRAS';
+            tipoBoleto = this.identificarTipoBoleto(barCode);
+            expirationDate = this.identificarData(barCode, 'CODIGO_DE_BARRAS');
+            amount = this.identificarValor(barCode, 'CODIGO_DE_BARRAS');
 
-          return `Status: ${status}
+            return `Status: ${status}
                   BarCode: ${code}
                   Mensagem: ${mensagem}
                   Tipo: ${tipoBoleto}
                   expirationDate: ${expirationDate}
                   amount ${amount}
                 `;
-          break;
-        default:
-          break;
+            break;
+          default:
+            break;
+        }
       }
     }
   }

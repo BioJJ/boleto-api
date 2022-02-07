@@ -28,7 +28,7 @@ export class BoletoController {
   }
 
   @Get(':barCode')
-  findBarCode(@Param('barCode') id: string): Retorno {
+  findBarCode(@Param('barCode') id: string) {
     return this.boletoService.findBarCode(id);
   }
 

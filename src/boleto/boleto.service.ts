@@ -6,12 +6,12 @@ import { Boleto } from './interfaces/boleto.interface';
 
 @Injectable()
 export class BoletoService {
-  private boletos: Boleto[] = [];
+  private boleto: Boleto;
 
   private retorno: Retorno;
 
   create(createBoleto: Boleto) {
-    this.boletos.push(createBoleto);
+    // this.boletos.push(createBoleto);
     return `New boleto created successfully: ${createBoleto}`;
   }
 
@@ -27,7 +27,7 @@ export class BoletoService {
     return `This action removes a #${id} boleto`;
   }
 
-  findBarCode(barCode: string): Retorno {
+  findBarCode(barCode: string) {
     const tipoCodigo = this.identificarTipoCodigo(barCode);
 
     if (
@@ -36,49 +36,57 @@ export class BoletoService {
       barCode.length != 47 &&
       barCode.length != 48
     ) {
-      this.retorno.status = '400';
-      this.retorno.boleto.barCode = barCode;
-      this.retorno.mensagem =
+      const status = '400';
+      const code = barCode;
+      const mensagem =
         'O código inserido possui ' +
         barCode.length +
         ' dígitos. Por favor insira uma numeração válida. Códigos de barras SEMPRE devem ter 44 caracteres numéricos. Linhas digitáveis podem possuir 46 (boletos de cartão de crédito), 47 (boletos bancários/cobrança) ou 48 (contas convênio/arrecadação) caracteres numéricos. Qualquer caractere não numérico será desconsiderado.';
+      return `Status: ${status}
+              BarCode: ${code}
+              Mensagem: ${mensagem}
+      `;
     } else {
-      this.retorno.status = '200';
-      this.retorno.boleto.barCode = barCode;
-      this.retorno.mensagem = 'Boleto válido';
+      const status = '200';
+      const code = barCode;
+      const mensagem = 'Boleto válido';
+      let tipoBoleto;
+      let expirationDate;
+      let amount;
 
       switch (tipoCodigo) {
         case 'LINHA_DIGITAVEL':
-          this.retorno.tipoCodigoInput = 'LINHA_DIGITAVEL';
-          this.retorno.tipoBoleto = this.identificarTipoBoleto(barCode);
-          this.retorno.boleto.barCode = barCode;
-          this.retorno.boleto.expirationDate = this.identificarData(
-            barCode,
-            'LINHA_DIGITAVEL',
-          );
-          this.retorno.boleto.amount = this.identificarValor(
-            barCode,
-            'LINHA_DIGITAVEL',
-          );
+          // const tipoCodigoInput = 'LINHA_DIGITAVEL';
+          tipoBoleto = this.identificarTipoBoleto(barCode);
+          expirationDate = this.identificarData(barCode, 'LINHA_DIGITAVEL');
+          amount = this.identificarValor(barCode, 'LINHA_DIGITAVEL');
+
+          return `Status: ${status}
+                  BarCode: ${code}
+                  Mensagem: ${mensagem}
+                  Tipo: ${tipoBoleto}
+                  expirationDate: ${expirationDate}
+                  amount ${amount}
+                `;
           break;
         case 'CODIGO_DE_BARRAS':
-          this.retorno.tipoCodigoInput = 'CODIGO_DE_BARRAS';
-          this.retorno.tipoBoleto = this.identificarTipoBoleto(barCode);
-          this.retorno.boleto.expirationDate = this.identificarData(
-            barCode,
-            'CODIGO_DE_BARRAS',
-          );
-          this.retorno.boleto.amount = this.identificarValor(
-            barCode,
-            'CODIGO_DE_BARRAS',
-          );
+          // const tipoCodigoInput = 'CODIGO_DE_BARRAS';
+          tipoBoleto = this.identificarTipoBoleto(barCode);
+          expirationDate = this.identificarData(barCode, 'CODIGO_DE_BARRAS');
+          amount = this.identificarValor(barCode, 'CODIGO_DE_BARRAS');
+
+          return `Status: ${status}
+                  BarCode: ${code}
+                  Mensagem: ${mensagem}
+                  Tipo: ${tipoBoleto}
+                  expirationDate: ${expirationDate}
+                  amount ${amount}
+                `;
           break;
         default:
           break;
       }
     }
-    console.log('this.retorno:', this.retorno);
-    return this.retorno;
   }
 
   identificarTipoCodigo(codigo: string) {
